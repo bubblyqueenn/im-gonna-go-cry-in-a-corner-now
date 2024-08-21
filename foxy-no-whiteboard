@@ -1,0 +1,54 @@
+import discord
+import requests
+import asyncio
+from discord.ext import tasks, commands
+from selenium import webdriver
+from selenium.webdriver.edge.service import Service as EdgeService
+from selenium.webdriver.edge.options import Options
+from webdriver_manager.microsoft import EdgeChromiumDriverManager
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+# Bot token and channel/user IDs
+TOKEN = 'REDACTED'  # Replace with your actual bot token
+CHANNEL_ID = 1095597543867564122 
+USER_ID = 886285955416338442  
+
+intents = discord.Intents.default()
+intents.message_content = True
+intents.guilds = True
+
+bot = commands.Bot(command_prefix="!", intents=intents)
+
+last_message_id = None
+
+@bot.event
+async def on_ready():
+    print(f'Logged in as {bot.user.name}')
+
+@bot.command(name='ping')
+async def ping(ctx):
+    await ctx.send('faggot')
+url = "https://discord.com/api/v10/applications/<1274562939201917079>/guilds/<1106709603372253304>/commands"
+
+@bot.command(name='motto')
+async def ping(ctx): 
+    await ctx.send('im either gonna kill myself or die trying')
+url = "https://discord.com/api/v10/applications/<1274562939201917079>/guilds/<1106709603372253304>/commands"
+
+@bot.command(name='do_you_like_sage')
+async def ping(ctx):
+    await ctx.send('ew! no.')
+url = "https://discord.com/api/v10/applications/<1274562939201917079>/guilds/<1106709603372253304>/commands"
+
+@bot.command(name='fuckyoufoxy')
+async def fuckyoufoxy(ctx):
+    await ctx.send('Im gonna tickle your toes lil bro')
+
+@bot.command(name='hi')
+async def hi(ctx):
+    await ctx.send('fuck you talija')
+
+# Run the bot
+bot.run('TOKEN')
