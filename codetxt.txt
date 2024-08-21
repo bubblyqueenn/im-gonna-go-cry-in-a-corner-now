@@ -31,9 +31,9 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 async def on_ready():
     print(f'Logged in as {bot.user.name}')
 
-@bot.slash_command(description="Example Command")
-async def example(ctx):
-    await ctx.respond("This is an example slash command!")
+@bot.slash_command(description="Generate Whiteboard")
+async def example(ctx):whiteboard_link = create_whiteboard_link()
+    await ctx.respond(f'Here is your new whiteboard link: {whiteboard_link}')
 
 async def setup():
     # Your setup tasks for Selenium or other setup steps
