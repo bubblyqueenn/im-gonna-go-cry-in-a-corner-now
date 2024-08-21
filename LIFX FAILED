@@ -1,0 +1,39 @@
+LIFX_TOKEN = "TOKEN"
+
+def lifx_request(data):
+    headers = {
+        "Authorization": f"Bearer {LIFX_TOKEN}",
+        "Content-Type": "application/json"
+    }
+    response = requests.put(
+        'https://api.lifx.com/v1/lights/all/state',
+        headers=headers,
+        json=data
+    )
+    return response.json()
+
+def lights_on():
+    return lifx_request({"power": "on"})
+
+def lights_off():
+    return lifx_request({"power": "off"})
+
+def change_color(color):
+    return lifx_request({"color": color})
+
+bot = commands.Bot(command_prefix="!")
+
+@bot.command(name='lighton')
+async def light_on(ctx):
+    lights_on()
+    await ctx.send("Lights turned on!")
+
+@bot.command(name='lightoff')
+async def light_off(ctx):
+    lights_off()
+    await ctx.send("Lights turned off!")
+
+@bot.command(name='colour')
+async def colour(ctx, *, color_name: str):
+    change_color(color_name)
+    await ctx.send(f"Lights changed to {color_name}!")
