@@ -12,37 +12,13 @@ intents.message_content = True
 intents.guilds = True
 openai.api_key = 'REDACTED'
 
-bot = commands.Bot(command_prefix='hey turbo, ', intents=intents)
+bot = commands.Bot(command_prefix='hey turbo', intents=intents)
 
-@bot.event
-async def on_message(message):
-    if message.author == bot.user:
-        return
-
-    # Command list
-    if message.content.startswith("help"):
-        command_list = """
-Hi! I'm Turbo. You can think of me like Character AI but better!!!!!!!! 
-If you put together OpenAI, personality.txt files, python code, a whole lot of pain and too many classes skipped then you get me. 
-
-The current available characters are:
-Mori
-Shadow 
-Blitzwing
-You can talk to these characters by typing "hey" followed by the characters name and a comma. it only works with lowercase and a comma, otherwise the bot will not respond. for example: "hey shadow, whats 1 + 1" will work. "Hey shadow, whats 1+1" wont work, neither will "hey shadow whats 1+1?"
-
-This bot was created by bubblyqueen, for any questions about having your own bot made, error messages, the bot giving really weird responses that may be in other languages (dont ask.), or anything really, dm me! 
-
-"""
-        await message.channel.send(command_list)
-
-    await bot.process_commands(message)
-
+# you can see my personality files here https://pastebin.com/gRhJmrfL
 
 def load_personality(file_name):
     with open(file_name, "r") as file:
         return file.read()
-# you can see my personality files here https://pastebin.com/C7bYneby
 
 async def get_webhook(channel, webhook_name):
     webhooks = await channel.webhooks()
@@ -80,6 +56,11 @@ async def on_message(message):
         personality_file = "blitzwing_personality.txt"
         webhook_name = "Blitzwing"
         avatar_url = "https://64.media.tumblr.com/ff7ee7db2ec8e91bdd5a8102701c74f1/tumblr_inline_p5gp0lvl7E1rh5czt_400.gif"
+    elif message.content.startswith("hey turbo, "):
+        prefix = "hey turbo, "
+        personality_file = "turbo_personality.txt"
+        webhook_name = "Turbo (NON-CHARACTER)"
+        avatar_url = "https://cdn.discordapp.com/attachments/1275266563687317599/1275972157012443326/images.jpeg?ex=66c7d52c&is=66c683ac&hm=d28230ba4e5f55c8dbc39740b04a0f7b769c1ff86bb73d5308138ab7bbf3be6d&"
     else:
         return  
     
@@ -112,6 +93,7 @@ async def on_message(message):
     
     except openai.error.OpenAIError as e:
         await message.channel.send("Sorry, Turbo ran into an error while processing the request.")
+
 @bot.event
 async def on_ready():
     print(f'{bot.user} has connected to Discord!')
