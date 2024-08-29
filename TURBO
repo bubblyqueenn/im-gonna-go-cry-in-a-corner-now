@@ -1,0 +1,109 @@
+import discord
+import asyncio
+from discord.ext import commands
+import openai # type: ignore
+import atexit
+
+TOKEN = 'REDACTED'
+CHANNEL_ID = 1275757082100109374 
+USER_ID = 886285955416338442
+intents = discord.Intents.default()
+intents.message_content = True
+intents.guilds = True
+openai.api_key = 'REDACTED'
+
+bot = commands.Bot(command_prefix='testestest12345', intents=intents)
+
+def load_personality(file_name):
+    with open(file_name, "r") as file:
+        return file.read()
+
+async def get_webhook(channel, webhook_name):
+    webhooks = await channel.webhooks()
+    for wh in webhooks:
+        if wh.name == webhook_name and wh.user == bot.user:
+            return wh
+    return await channel.create_webhook(name=webhook_name)
+
+@bot.command(name='use_webhook')
+async def use_webhook(channel, *, message, webhook_name, avatar_url):
+    webhook = await get_webhook(channel, webhook_name)
+       
+    while len(message) > 2000:
+        await webhook.send(content=message[:2000], username=webhook_name, avatar_url=avatar_url)
+        message = message[2000:]
+    await webhook.send(content=message, username=webhook_name, avatar_url=avatar_url)
+
+@bot.event
+async def on_message(message):
+    if message.author == bot.user:
+        return
+
+    if message.content.startswith("hey shadow, "):
+        prefix = "hey shadow, "
+        personality_file = "shadow_personality.txt"
+        webhook_name = "Shadow the Hedgog"
+        avatar_url = "https://cdn.discordapp.com/attachments/1021442882302906378/1278505350986731521/SPOILER_29.08.24.png?ex=66d10c65&is=66cfbae5&hm=2ac2fc0ca75d8040acc45a3aa56f90aeb86922c84ec095a91eabfa8e1e00246c&"
+    elif message.content.startswith("hey mori "):
+        prefix = "hey mori, "
+        personality_file = "mori_personality.txt"
+        webhook_name = "Mori"
+        avatar_url = "https://media.discordapp.net/attachments/1273635088554524834/1278482876668579920/b9c479e2995d297cee90a0075efea098.jpg?ex=66d0f776&is=66cfa5f6&hm=05c0b6513b9ac5aae8cee5af57d835ac239200ddd8b0548a99c7e527940dd666&format=webp&width=553&height=553&"
+    elif message.content.startswith("hey blitzwing, "):
+        prefix = "hey blitzwing, "
+        personality_file = "blitzwing_personality.txt"
+        webhook_name = "Blitzwing"
+        avatar_url = "https://64.media.tumblr.com/ff7ee7db2ec8e91bdd5a8102701c74f1/tumblr_inline_p5gp0lvl7E1rh5czt_400.gif"
+    else:
+        return  
+    
+    if message.webhook_id:
+        return  
+    
+    if message.author.bot:
+        return  
+
+    query = message.content[len(prefix):].strip()
+    personality = load_personality(personality_file)
+    
+    system_message = {
+        "role": "system",
+        "content": personality
+    }
+    
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-4o-mini",
+            temperature=1,
+            messages=[
+                system_message,
+                {"role": "user", "content": query}
+            ],
+            max_tokens=300
+        )
+        answer = response['choices'][0]['message']['content'].strip()
+        await use_webhook(message.channel, message=answer, webhook_name=webhook_name, avatar_url=avatar_url)
+    
+    except openai.error.OpenAIError as e:
+        await message.channel.send("Sorry, Turbo ran into an error while processing the request.")
+@bot.event
+async def on_ready():
+    print(f'{bot.user} has connected to Discord!')
+
+def on_shutdown():
+    channel = bot.get_channel(CHANNEL_ID)
+    if channel:
+        asyncio.run_coroutine_threadsafe(channel.send("Turbo is going offline."), bot.loop).result()
+    bot.loop.run_until_complete(bot.close())
+
+atexit.register(on_shutdown)
+
+bot.run('TOKEN')
+
+
+# EXAMPLE ADD
+#  elif message.content.startswith("hey [character name], "):
+#        prefix = "hey [character], "
+#        personality_file = "[character]_personality.txt"
+#        webhook_name = "[bot name]"
+#        avatar_url = "[avatar url]"
